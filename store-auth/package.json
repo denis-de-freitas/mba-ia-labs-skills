@@ -1,0 +1,10 @@
+{
+  "name": "store-auth",
+  "version": "1.0.0",
+  "description": "Módulos de autenticação e relatórios para um ecommerce padrão",
+  "main": "src/auth.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT"
+}

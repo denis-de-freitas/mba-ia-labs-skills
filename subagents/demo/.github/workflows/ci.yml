@@ -1,0 +1,19 @@
+# Frente: BUILD & CI. Pipeline no push e em PRs para a main.
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm test
+      # RISCO (plantado): não há etapa de deploy nem de lint/auditoria de
+      # segurança; o pipeline só roda os testes (que cobrem pouco).

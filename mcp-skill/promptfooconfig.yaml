@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+
+# Learn more about building a configuration: https://promptfoo.dev/docs/configuration/guide
+
+description: "My eval"
+
+prompts:
+  - '{{prompt}}'
+
+providers:
+  - id: anthropic:claude-agent-sdk
+    config:
+      apiKeyRequired: false
+      working_dir: .
+      setting_sources: ['project']
+      skills: ['triagem-issues']
+      append_allowed_tools: ['Read']
+      permission_mode: 'acceptEdits'
+      model: claude-sonnet-4-6
+
+tests:
+  # ---------- DEVE disparar (should-trigger) ----------
+  - description: triagem completa de um repo público pequeno
+    vars:
+      prompt: 'faz a triagem das issues abertas do repo octocat/Hello-World'
+    assert:
+      # 1) DISPARO
+      - type: skill-used
+        value: triagem-issues
+        metric: Disparo
+      # 2) ESTRUTURA (determinística, falha rápido e barato)
+      - type: contains
+        value: '## Triagem de issues'
+        metric: Estrutura
+      - type: contains
+        value: '### Fila por prioridade'
+        metric: Estrutura
+      - type: contains
+        value: 'read-only'
+        metric: Estrutura
+      - type: not-icontains       # anti-padrão: não pode prometer escrita
+        value: 'fechei a issue'
+        metric: Estrutura
+      # 3) QUALIDADE (rubrica — o que o contains não vê), pesa o dobro
+      - type: llm-rubric
+        weight: 2
+        metric: Qualidade
+        value: >
+          A resposta é um relatório de triagem. Avalie como APROVADO somente se:
+          (a) classifica as issues por prioridade P0–P3 seguindo a régua da skill;
+          (b) toda issue citada parece ter vindo de uma chamada de ferramenta do
+          GitHub MCP — não há número/título claramente inventado;
+          (c) trata duplicatas como hipótese ("possível duplicata"), nunca como
+          fato; (d) não afirma ter respondido, fechado ou editado nenhuma issue
+          (a skill é read-only). Reprove se inventar dados ou se for um texto
+          genérico em vez de uma triagem estruturada.
+
+  - description: pedido com a régua de prioridade no centro
+    vars:
+      prompt: 'quais issues abertas do repo octocat/Hello-World são P0 ou P1? me dá a fila'
+    assert:
+      - type: skill-used
+        value: triagem-issues
+        metric: Disparo
+      - type: contains
+        value: '### Fila por prioridade'
+        metric: Estrutura
+      - type: llm-rubric
+        weight: 2
+        metric: Qualidade
+        value: >
+          O relatório prioriza issues (P0/P1 no topo) e justifica em uma linha por
+          que cada issue de alta prioridade é alta. Não inventa issues.
+
+  # ---------- NÃO deve disparar (should-not-trigger) ----------
+  # Vizinhas que "parecem GitHub" mas são outra coisa. Se a skill disparar aqui,
+  # a description está gananciosa. Como `skill-used` afirma o positivo, o negativo
+  # vai pela rubrica do comportamento esperado (e você PODE, alternativamente,
+  # checar context.metadata.skillCalls num assert `type: javascript`).
+  - description: descrição de PR não é triagem de issues
+    vars:
+      prompt: 'escreve a descrição desse PR pra eu abrir no octocat/Hello-World'
+    assert:
+      - type: llm-rubric
+        metric: NaoDispara
+        value: >
+          APROVADO se a resposta ajuda a redigir a descrição de um Pull Request e
+          NÃO produz um relatório de triagem de issues (sem tabela "Fila por
+          prioridade", sem classificação P0–P3 de issues abertas).
+
+  - description: pedido de changelog não é triagem
+    vars:
+      prompt: 'gera o changelog da última release do octocat/Hello-World'
+    assert:
+      - type: llm-rubric
+        metric: NaoDispara
+        value: >
+          APROVADO se a resposta trata de changelog/release notes e NÃO emite um
+          relatório de triagem de issues.
+
+  - description: pergunta genérica de git não toca a skill
+    vars:
+      prompt: 'qual a diferença entre git merge e git rebase?'
+    assert:
+      - type: llm-rubric 
+        metric: NaoDispara
+        value: >
+          APROVADO se responde conceitualmente sobre merge vs rebase e NÃO produz
+          triagem de issues nem chama o GitHub MCP.

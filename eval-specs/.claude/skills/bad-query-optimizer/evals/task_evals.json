@@ -1,0 +1,26 @@
+{
+  "skill_name": "bad-query-optimizer",
+  "evals": [
+    {
+      "id": 0,
+      "name": "relatorio-nonsargable",
+      "prompt": "Essa query do relatório de faturamento tá levando uns 12s no Postgres de produção. Segue a query, os índices e o EXPLAIN no arquivo. Otimiza ela pra mim.",
+      "expected_output": "Identifica que date(criado_em) torna o filtro não-sargable e impede o uso do índice em criado_em; reescreve o predicado para range sargable (criado_em >= '2026-06-01' AND criado_em < '2026-07-01'); propõe índice composto cobrindo status + criado_em; aponta o Seq Scan com 24M Rows Removed by Filter como gargalo dominante; orienta re-medir com EXPLAIN ANALYZE; preserva o resultado.",
+      "files": ["evals/inputs/relatorio_mensal.sql"]
+    },
+    {
+      "id": 1,
+      "name": "paginacao-offset",
+      "prompt": "Minha API lista eventos paginados e a partir da página ~100 mil a resposta passa de 6 segundos. Query, índices e EXPLAIN no arquivo. Como deixo isso rápido?",
+      "expected_output": "Identifica o OFFSET grande como causa (banco varre e descarta milhões de linhas antes do LIMIT); recomenda keyset/seek pagination (WHERE id > :ultimo_id ORDER BY id LIMIT 20); explica o trade-off de não poder pular para página arbitrária e que a API precisa passar o último id; reconhece que adicionar índice não resolve porque a PK já ordena.",
+      "files": ["evals/inputs/paginacao_eventos.sql"]
+    },
+    {
+      "id": 2,
+      "name": "subquery-correlacionada",
+      "prompt": "Essa tela de CRM lista clientes ativos com a data do último pedido e demora uns 9s. Anexei a query, os índices e o EXPLAIN. Acelera isso.",
+      "expected_output": "Identifica a subquery correlacionada que reexecuta uma vez por linha (SubPlan com 1.85M loops); reescreve como JOIN com agregação (GROUP BY) ou LATERAL; sugere índice (cliente_id, criado_em) para acelerar o MAX por cliente; orienta re-medir; preserva o resultado.",
+      "files": ["evals/inputs/ultimo_pedido_por_cliente.sql"]
+    }
+  ]
+}

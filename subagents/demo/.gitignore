@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test / coverage
+coverage/
+.vitest/
+
+# macOS
+.DS_Store

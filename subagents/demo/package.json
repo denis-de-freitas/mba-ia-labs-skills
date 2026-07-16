@@ -1,0 +1,15 @@
+{
+  "name": "loja-api",
+  "version": "0.4.2",
+  "description": "API de pedidos de uma loja (projeto-demo para a aula de sub-agentes)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "migrate": "node src/db/run-migrations.js",
+    "test": "node --test 'test/**/*.test.js'"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "pg": "^8.11.0"
+  }
+}

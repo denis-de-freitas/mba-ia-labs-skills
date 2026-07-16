@@ -1,0 +1,22 @@
+[
+  {"query": "essa query tá lenta, otimiza pra mim", "should_trigger": true},
+  {"query": "melhora a performance desse SELECT com três JOINs", "should_trigger": true},
+  {"query": "essa consulta demora 8 segundos, deixa mais rápida", "should_trigger": true},
+  {"query": "sugere índices pra acelerar essa query", "should_trigger": true},
+  {"query": "essa query de relatório mensal tá levando uns 12s no postgres de produção, dá pra deixar mais rápida?", "should_trigger": true},
+  {"query": "o EXPLAIN ANALYZE mostra um seq scan numa tabela de 20M de linhas, como melhoro isso?", "should_trigger": true},
+  {"query": "tenho um SELECT com 4 JOINs e GROUP BY que estoura o tempo, otimiza o plano de execução", "should_trigger": true},
+  {"query": "essa query roda no cron toda madrugada e hoje demora uns 40min, preciso reduzir esse tempo", "should_trigger": true},
+  {"query": "essa sql ta um caco de lenta, arruma ai", "should_trigger": true},
+  {"query": "minha tela de dashboard demora pra carregar e isolei que é essa query do relatório, otimiza ela", "should_trigger": true},
+  {"query": "explica o que essa query faz, linha por linha", "should_trigger": false},
+  {"query": "escreve uma query que traga os 10 maiores clientes por faturamento", "should_trigger": false},
+  {"query": "modela as tabelas pro sistema de pedidos", "should_trigger": false},
+  {"query": "gera 500 linhas de dados de teste pra tabela usuarios", "should_trigger": false},
+  {"query": "meu endpoint /orders tá lento, acho que é N+1 no ORM do Rails, como resolvo no código?", "should_trigger": false},
+  {"query": "como configuro o connection pool e o shared_buffers do postgres pra aguentar mais carga?", "should_trigger": false},
+  {"query": "traduz essa query de MySQL pra sintaxe do PostgreSQL", "should_trigger": false},
+  {"query": "minha app node tá consumindo muita CPU em produção, como faço o profiling?", "should_trigger": false},
+  {"query": "revisa esse PR que mexe na camada de repositório com várias queries", "should_trigger": false},
+  {"query": "essa query tá retornando o cliente errado, tem bug no WHERE?", "should_trigger": false}
+]

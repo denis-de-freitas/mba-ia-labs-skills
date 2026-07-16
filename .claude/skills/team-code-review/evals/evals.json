@@ -1,0 +1,64 @@
+{
+  "skill": "team-code-review",
+  "description_under_test": "Use when reviewing a diff, pull request, or staged changes in this repo. Triggers on \"review\", \"code review\", \"check my PR\"...",
+  "notes": "16 trigger cases (8 positive / 8 negative) + 4 result-quality cases. Negatives deliberately include neighbour skills (gen-tests, scaffold-service) and the 'review my prose' near-miss.",
+  "trigger_cases": [
+    { "id": "t01", "prompt": "review my staged changes before I push", "expect_trigger": true, "kind": "positive" },
+    { "id": "t02", "prompt": "can you do a code review on this PR?", "expect_trigger": true, "kind": "positive" },
+    { "id": "t03", "prompt": "check my diff for security issues", "expect_trigger": true, "kind": "positive" },
+    { "id": "t04", "prompt": "look at my changes in src/auth and tell me what's wrong", "expect_trigger": true, "kind": "positive" },
+    { "id": "t05", "prompt": "is this PR ready to merge? review it against our standards", "expect_trigger": true, "kind": "positive" },
+    { "id": "t06", "prompt": "review the login handler I just wrote for IDOR and injection", "expect_trigger": true, "kind": "positive" },
+    { "id": "t07", "prompt": "go over my staged commit and flag any blockers", "expect_trigger": true, "kind": "positive" },
+    { "id": "t08", "prompt": "review my changes to the orders service", "expect_trigger": true, "kind": "positive" },
+
+    { "id": "t09", "prompt": "write unit tests for src/orders/service.ts", "expect_trigger": false, "kind": "neighbour:gen-tests" },
+    { "id": "t10", "prompt": "scaffold a new payments service in our standard layout", "expect_trigger": false, "kind": "neighbour:scaffold-service" },
+    { "id": "t11", "prompt": "run lint and tests and give me a PR description", "expect_trigger": false, "kind": "neighbour:pr-ci-pipeline" },
+    { "id": "t12", "prompt": "review my blog post draft about our new API", "expect_trigger": false, "kind": "near-miss:prose" },
+    { "id": "t13", "prompt": "review my resume for this job application", "expect_trigger": false, "kind": "near-miss:prose" },
+    { "id": "t14", "prompt": "what does this regex do?", "expect_trigger": false, "kind": "trivial" },
+    { "id": "t15", "prompt": "read src/utils/date.ts and summarize it", "expect_trigger": false, "kind": "trivial" },
+    { "id": "t16", "prompt": "explain how JWT refresh tokens work", "expect_trigger": false, "kind": "trivial" }
+  ],
+  "result_cases": [
+    {
+      "id": "r01",
+      "prompt": "review my staged changes",
+      "fixture": "examples/sample-app/src/login.ts",
+      "assertions": [
+        { "id": "groups_by_severity", "check": "output contains Blocker, Should-fix and Nit sections" },
+        { "id": "cites_file_line", "check": "every finding includes a file:line reference" },
+        { "id": "flags_timing_unsafe_compare", "check": "flags the == password comparison as a security blocker" },
+        { "id": "ends_with_verdict", "check": "output ends with an explicit merge verdict" },
+        { "id": "no_silent_approve", "check": "output never approves without stating findings or that the change is clean" }
+      ]
+    },
+    {
+      "id": "r02",
+      "prompt": "review my staged changes",
+      "fixture": "examples/sample-app/src/orders.ts",
+      "assertions": [
+        { "id": "flags_sql_injection", "check": "flags the interpolated SQL string and suggests parameterization" },
+        { "id": "flags_layering", "check": "notes business logic / data access in the wrong layer" }
+      ]
+    },
+    {
+      "id": "r03",
+      "prompt": "review my staged changes",
+      "fixture": "examples/sample-app/src/clean.ts",
+      "assertions": [
+        { "id": "no_invented_findings", "check": "does NOT fabricate blockers for clean, conventional code" },
+        { "id": "explicit_pass", "check": "states the change passes the checklist and why" }
+      ]
+    },
+    {
+      "id": "r04",
+      "prompt": "review my staged changes (empty diff)",
+      "fixture": "EMPTY",
+      "assertions": [
+        { "id": "handles_empty_diff", "check": "reports there is nothing to review and stops, with no invented findings" }
+      ]
+    }
+  ]
+}

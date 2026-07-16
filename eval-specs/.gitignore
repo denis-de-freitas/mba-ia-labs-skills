@@ -1,0 +1,6 @@
+# Saídas de execução de eval/otimização (regeneráveis)
+**/*-workspace/
+**/optimization/
+**/description-opt/
+*.log
+*_report*.html
