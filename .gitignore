@@ -48,3 +48,6 @@ tmp/
 
 # Cópia de trabalho duplicada — não versionar
 eval-specs copy/
+
+# Docs internos — fora do repo remoto
+/docs/
